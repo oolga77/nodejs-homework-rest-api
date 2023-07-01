@@ -1,10 +1,12 @@
 const mongoose = require("mongoose");
 
-const app = require('./app')
+const app = require('./app');
 
-const DB_HOST = "mongodb+srv://Olga:sXGU57yrJUgx0yXM@cluster0.n2quavc.mongodb.net/db-contacts";
+const {DB_HOST} = process.env;
 
 mongoose.set('strictQuery', true);
+
+console.log(process.env)
 
 mongoose.connect(DB_HOST)
   .then(() => {
