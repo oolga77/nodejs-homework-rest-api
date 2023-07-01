@@ -6,8 +6,6 @@ const {DB_HOST} = process.env;
 
 mongoose.set('strictQuery', true);
 
-console.log(process.env)
-
 mongoose.connect(DB_HOST)
   .then(() => {
     app.listen(3001, () => {
