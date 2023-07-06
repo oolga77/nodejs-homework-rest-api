@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
-const { handleMongooseError } = require("../helpers");
 const Joi = require("joi");
+const { handleMongooseError } = require("../helpers");
 
 const contactSchema = new Schema(
   {
@@ -11,12 +11,12 @@ const contactSchema = new Schema(
     email: {
       type: String,
       required: true,
-      // match: emailRegExp,
+      
     },
     phone: {
       type: String,
       required: true,
-      // match: phoneRegExp,
+      
     },
     favorite: {
       type: Boolean,
