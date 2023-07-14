@@ -4,10 +4,11 @@ const gravatar = require("gravatar");
 const path = require("path");
 const fs = require("fs/promises")
 const Jimp = require("jimp");
+const {nanoid} = require("nanoid");
 
 const {User} = require("../models/user");
 
-const { ctrlWrapper, HttpError } = require("../helpers");
+const { ctrlWrapper, HttpError, sendEmail } = require("../helpers");
 
 const {SECRET_KEY} = process.env;
 
@@ -23,8 +24,9 @@ const register = async(req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
+    const varificationCode = nanoid();
 
-    const newUser = await User.create({...req.body, password: hashPassword, avatarURL});
+    const newUser = await User.create({...req.body, password: hashPassword, avatarURL, varificationCode});
 
     res.status(201).json({
         email: newUser.email,
