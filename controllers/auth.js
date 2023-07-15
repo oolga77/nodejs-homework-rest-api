@@ -14,17 +14,13 @@ const {SECRET_KEY, BASE_URL} = process.env;
 
 const avatarsDir = path.join(__dirname, "../", "public", "avatars")
 
-const register = async(req, res) => {
+const register = async(req, res, next) => {
     const {email, password} = req.body;
     const user = await User.findOne({email});
 
     if (user){
         throw HttpError(409, "Email already in use");
     }
-
-    // if(!user.verify) {
-    //     throw HttpError(409, "Email is not verified");
-    // }
 
     const hashPassword = await bcrypt.hash(password, 10);
     const avatarURL = gravatar.url(email);
@@ -44,6 +40,8 @@ const register = async(req, res) => {
 
     res.status(201).json({
         email: newUser.email,
+         subscription: newUser.subscription,
+        
     })
 
 };
@@ -70,9 +68,9 @@ const verifyEmail = async (req, res) => {
     if (!user) {
       throw HttpError(401, "Email not found");
     }
-    if (user.verify) {
-      throw HttpError(400, "Verification has already been passed");
-    }
+    // if (user.verify) {
+    //   throw HttpError(400, "Verification has already been passed");
+    // }
   
     const verifyEmail = {
       to: email,
@@ -108,15 +106,20 @@ const login = async(req, res) => {
 
     res.json({
         token,
-    })
+         user: {
+         email: user.email,
+         subscription: user.subscription,
+    }})
 
 }
 
 const getCurrent = async(req, res) => {
-    const {email} = req.user;
+    const {email, subscription} = req.user;
+    if (!req.user) {
+        throw HttpError(401, "Not authorized");}
 
     res.json({
-        email
+        email, subscription, 
     })
 }
 
@@ -127,7 +130,23 @@ const logout = async(req, res) => {
     res.json({
         message: "Logout success"
     })
-}
+};
+
+const updateSubscription = async (req, res, next) => {
+    const { _id } = req.user;
+    const { subscription } = req.body;
+    const result = await User.findByIdAndUpdate(
+      _id,
+      { subscription },
+      {
+        new: true,
+      }
+    );
+    if (!result) {
+      throw HttpError(404, "Not found");
+    }
+    res.status(200).json(result);
+  };
 
 const updateAvatar = async(req, res) => {
     const {_id} = req.user;
@@ -164,5 +183,6 @@ module.exports = {
     login: ctrlWrapper(login),
     getCurrent: ctrlWrapper(getCurrent),
     logout: ctrlWrapper(logout),
+    updateSubscription: ctrlWrapper(updateSubscription),
     updateAvatar: ctrlWrapper(updateAvatar),
 }
